@@ -15,6 +15,7 @@
         "build:umd": "cross-env BABEL_ENV=es BUNDLE_TYPE=normal rollup -c -i index.js -o dist/Dropbox-sdk.js -n Dropbox",
         "build:umd:min": "cross-env BABEL_ENV=es BUNDLE_TYPE=minified rollup -c -i index.js -o dist/Dropbox-sdk.min.js -n Dropbox",
         "build": "npm run build:es && npm run build:cjs && npm run build:umd && npm run build:umd:min",
+        "prepare": "npm run build",
         "lint": "eslint --ext .js,.jsx,.ts .",
         "lint-fix": "eslint --fix --ext .js,.jsx,.ts .",
         "test": "npm run test:typescript && npm run test:unit",
