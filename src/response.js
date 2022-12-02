@@ -62,3 +62,12 @@ export function parseDownloadResponse(res) {
     return new DropboxResponse(res.status, res.headers, result);
   });
 }
+
+export function parseDownloadResponseAsStream(res) {
+  if (!res.ok) {
+    return throwAsError(res);
+  }
+  const result = JSON.parse(res.headers.get('dropbox-api-result'));
+  result.fileStream = res.body;
+  return new DropboxResponse(res.status, res.headers, result);
+}
