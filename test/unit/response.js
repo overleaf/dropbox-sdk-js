@@ -6,6 +6,7 @@ import {
   DropboxResponse,
   parseResponse,
   parseDownloadResponse,
+  parseDownloadResponseAsStream,
 } from '../../src/response.js';
 import { DropboxResponseError } from '../../src/error.js';
 
@@ -73,6 +74,31 @@ describe('DropboxResponse', () => {
         };
         const response = new Response(undefined, init);
         chai.assert.isRejected(parseDownloadResponse(response), DropboxResponseError);
+      }
+    });
+  });
+
+  describe('parseDownloadResponseAsStream', () => {
+    it('correctly parses the response', () => {
+      const init = {
+        status: 200,
+        headers: {
+          'dropbox-api-result': httpHeaderSafeJson({ name: 'test.txt' }),
+        },
+      };
+      const response = new Response(undefined, init);
+      const dropboxResponse = parseDownloadResponseAsStream(response);
+      chai.assert.hasAllKeys(dropboxResponse.result, ['name', 'fileStream']);
+    });
+
+    it('throws an error when not a 200 status code', () => {
+      const statusArray = [300, 400, 500];
+      for (const status of statusArray) {
+        const init = {
+          status,
+        };
+        const response = new Response(undefined, init);
+        chai.assert.isRejected(parseDownloadResponseAsStream(response), DropboxResponseError);
       }
     });
   });

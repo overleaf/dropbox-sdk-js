@@ -11,7 +11,11 @@ import {
 import { routes } from '../lib/routes.js';
 import DropboxAuth from './auth.js';
 import { baseApiUrl, httpHeaderSafeJson } from './utils.js';
-import { parseDownloadResponse, parseResponse } from './response.js';
+import {
+  parseDownloadResponse,
+  parseDownloadResponseAsStream,
+  parseResponse
+} from './response.js';
 
 const b64 = typeof btoa === 'undefined'
   ? (str) => Buffer.from(str).toString('base64')
@@ -61,6 +65,7 @@ export default class Dropbox {
     this.selectUser = options.selectUser;
     this.selectAdmin = options.selectAdmin;
     this.pathRoot = options.pathRoot;
+    this.streamDownloads = options.streamDownloads;
 
     this.domain = options.domain || this.auth.domain;
     this.domainDelimiter = options.domainDelimiter || this.auth.domainDelimiter;
@@ -127,7 +132,13 @@ export default class Dropbox {
         baseApiUrl(host, this.domain, this.domainDelimiter) + path,
         fetchOptions,
       ))
-      .then((res) => parseDownloadResponse(res));
+      .then((res) => {
+        if (this.streamDownloads) {
+          return parseDownloadResponseAsStream(res);
+        } else {
+          return parseDownloadResponse(res);
+        }
+      })
   }
 
   uploadRequest(path, args, auth, host) {

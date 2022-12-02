@@ -124,6 +124,33 @@ for (const appType in appInfo) {
         });
       });
     });
+
+    describe(`User ${appType} (streamDownloads: true)`, () => {
+      let dbxAuth;
+      let dbx;
+
+      beforeEach(() => {
+        dbxAuth = new DropboxAuth(appInfo[appType]);
+        dbx = new Dropbox({ auth: dbxAuth, streamDownloads: true });
+      });
+
+      describe('download', () => {
+        it('download request is successful', (done) => {
+          dbx.sharingGetSharedLinkFile({ url: process.env.DROPBOX_SHARED_LINK })
+            .then((resp) => {
+              chai.assert.instanceOf(resp, DropboxResponse);
+              chai.assert.equal(resp.status, 200, resp.result);
+              chai.assert.isObject(resp.result);
+
+              chai.assert.isString(resp.result.name);
+              chai.assert.isDefined(resp.result.fileStream);
+
+              done();
+            })
+            .catch(done);
+        });
+      });
+    });
   }
 }
 
